@@ -1,0 +1,2482 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1A1A1A">
+    <title>LKNBank Admin</title>
+    
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Используем Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Наши стили -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        :root {
+            --bg-primary: #1A1A1A;
+            --bg-secondary: #222222;
+            --bg-tertiary: #2E2E2E;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0A0A0;
+            --accent-primary: #F7A14C;
+            --accent-secondary: #FFD866;
+            --danger: #FF5252;
+            --success: #4CAF50;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden; /* Предотвращаем горизонтальную прокрутку */
+        }
+        
+        /* Основные компоненты */
+        .admin-card {
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            width: 100%;
+        }
+        
+        .admin-card .card-header {
+            background-color: var(--bg-tertiary);
+            padding: 1rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .admin-card .card-header span {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .admin-card .card-body {
+            padding: 1rem;
+        }
+        
+        .stats-box {
+            background-color: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 1.25rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .stats-number {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .stats-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        /* Кнопки */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            margin: 0 auto;
+        }
+        
+        .btn-primary {
+            background-color: var(--accent-primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #E09042;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-secondary {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #383838;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #E04848;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Формы */
+        .form-control {
+            background-color: var(--bg-tertiary);
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: var(--text-primary);
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px rgba(247, 161, 76, 0.3);
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        
+        /* Таблицы */
+        .admin-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .admin-table th {
+            text-align: center;
+            padding: 0.75rem 1rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            border-bottom: 1px solid #444;
+        }
+        
+        .admin-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #333;
+            text-align: center;
+        }
+        
+        .admin-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Утилиты */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .badge-success {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: var(--success);
+        }
+        
+        .badge-danger {
+            background-color: rgba(255, 82, 82, 0.2);
+            color: var(--danger);
+        }
+        
+        /* Анимации и эффекты */
+        .notification {
+            position: fixed;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100%);
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            font-size: 0.9rem;
+            font-weight: 500;
+            max-width: 300px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .notification.success {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: var(--success);
+            border: 1px solid rgba(76, 175, 80, 0.4);
+        }
+        
+        .notification.error {
+            background-color: rgba(255, 82, 82, 0.2);
+            color: var(--danger);
+            border: 1px solid rgba(255, 82, 82, 0.4);
+        }
+        
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--accent-primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Страницы */
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        /* Навигация */
+        .navbar {
+            background-color: var(--bg-secondary);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            text-align: center;
+        }
+        
+        .navbar-brand {
+            color: var(--accent-primary);
+            font-weight: 700;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        
+        /* Центрирование навигации */
+        .navbar-nav {
+            display: flex;
+            justify-content: center;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 800px;
+        }
+        
+        .tab-button {
+            padding: 0.75rem 1rem;
+            color: var(--text-secondary);
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        
+        .tab-button:hover {
+            color: var(--text-primary);
+        }
+        
+        .tab-button.active {
+            color: var(--accent-primary);
+            border-bottom-color: var(--accent-primary);
+        }
+        
+        /* Мобильная навигация внизу */
+        .bottom-navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--bg-secondary);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-around;
+            padding: 0.5rem;
+            z-index: 50;
+            text-align: center;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        
+        .nav-item.active {
+            color: var(--accent-primary);
+        }
+        
+        .nav-icon {
+            margin-bottom: 0.25rem;
+        }
+        
+        /* Адаптивность */
+        /* Для больших экранов (десктоп) */
+        @media (min-width: 1280px) {
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+            
+            .main-content {
+                padding: 2rem;
+            }
+            
+            .admin-table {
+                font-size: 1rem;
+            }
+            
+            .bottom-navigation {
+                display: none;
+            }
+            
+            .admin-card {
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            
+            .admin-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            }
+        }
+        
+        /* Для средних экранов (планшеты) */
+        @media (min-width: 768px) and (max-width: 1279px) {
+            .container {
+                max-width: 95%;
+            }
+            
+            .main-content {
+                padding: 1.5rem;
+            }
+            
+            .grid-cols-1 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .navbar-nav {
+                display: flex !important;
+            }
+            
+            .bottom-navigation {
+                display: none;
+            }
+            
+            .tab-button {
+                font-size: 0.9rem;
+                padding: 0.6rem 0.8rem;
+            }
+        }
+        
+        /* Для мобильных устройств (общие стили) */
+        @media (max-width: 767px) {
+            .container {
+                width: 100%;
+                padding: 0 1rem;
+            }
+            
+            .navbar-nav {
+                display: none !important;
+            }
+            
+            .bottom-navigation {
+                display: flex;
+                padding-bottom: env(safe-area-inset-bottom, 0.5rem);
+            }
+            
+            .main-content {
+                padding-bottom: calc(80px + env(safe-area-inset-bottom, 0.5rem));
+            }
+            
+            .grid {
+                grid-gap: 0.75rem;
+            }
+            
+            /* Улучшаем скроллинг на мобильных */
+            .overflow-x-auto {
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none; /* Firefox */
+            }
+            
+            .overflow-x-auto::-webkit-scrollbar {
+                display: none; /* Chrome, Safari */
+            }
+        }
+        
+        /* Для средних мобильных устройств */
+        @media (min-width: 481px) and (max-width: 767px) {
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .admin-card .card-header {
+                padding: 0.75rem 1rem;
+            }
+            
+            .admin-card .card-body {
+                padding: 0.75rem 1rem;
+            }
+            
+            .navbar-brand {
+                font-size: 1.35rem;
+            }
+        }
+        
+        /* Для маленьких мобильных устройств */
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 0.75rem 0.5rem;
+            }
+            
+            .admin-card {
+                border-radius: 10px;
+                margin-bottom: 1rem;
+            }
+            
+            .admin-card .card-header {
+                padding: 0.75rem;
+                font-size: 0.95rem;
+            }
+            
+            .admin-card .card-body {
+                padding: 0.75rem;
+            }
+            
+            .form-group {
+                margin-bottom: 0.75rem;
+            }
+            
+            .navbar-brand {
+                font-size: 1.25rem;
+            }
+            
+            .stats-box {
+                padding: 0.75rem;
+            }
+            
+            .btn {
+                padding: 0.4rem 0.75rem;
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Для очень маленьких экранов */
+        @media (max-width: 360px) {
+            .main-content {
+                padding: 0.5rem 0.5rem;
+            }
+            
+            .navbar {
+                padding: 0.5rem !important;
+            }
+            
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+            
+            #adminInfo {
+                font-size: 0.7rem;
+            }
+            
+            .stats-box {
+                padding: 0.5rem;
+            }
+            
+            .stats-number {
+                font-size: 1.1rem;
+                margin-bottom: 0.1rem;
+            }
+            
+            .stats-label {
+                font-size: 0.7rem;
+            }
+            
+            .btn {
+                font-size: 0.8rem;
+                padding: 0.3rem 0.6rem;
+            }
+            
+            .admin-table th,
+            .admin-table td {
+                padding: 0.4rem;
+                font-size: 0.8rem;
+            }
+            
+            .admin-card .card-header {
+                padding: 0.5rem 0.75rem;
+            }
+            
+            .admin-card .card-body {
+                padding: 0.5rem 0.75rem;
+            }
+            
+            .form-control {
+                font-size: 0.85rem;
+                padding: 0.4rem 0.5rem;
+            }
+            
+            .form-group label {
+                font-size: 0.8rem;
+                margin-bottom: 0.3rem;
+            }
+            
+            .nav-item {
+                padding: 0.25rem;
+                font-size: 0.65rem;
+            }
+            
+            .nav-icon {
+                width: 1.2rem;
+                height: 1.2rem;
+            }
+        }
+        
+        /* Поддержка ландшафтной ориентации */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .stats-box {
+                padding: 0.5rem;
+            }
+            
+            .navbar {
+                padding: 0.5rem !important;
+            }
+            
+            .main-content {
+                padding-top: 0.5rem;
+                padding-bottom: 70px;
+            }
+            
+            .bottom-navigation {
+                height: 60px;
+            }
+            
+            .admin-card {
+                margin-bottom: 0.75rem;
+            }
+            
+            .grid {
+                grid-gap: 0.5rem;
+            }
+        }
+        
+        /* Фикс для модального окна */
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Адаптивные таблицы для мобильных устройств */
+        @media (max-width: 767px) {
+            .table-responsive {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .admin-table {
+                min-width: 500px; /* Минимальная ширина для прокрутки */
+            }
+            
+            .admin-table th,
+            .admin-table td {
+                padding: 0.6rem 0.75rem;
+                font-size: 0.9rem;
+                white-space: nowrap;
+            }
+            
+            /* Для узких колонок */
+            .admin-table th.col-narrow,
+            .admin-table td.col-narrow {
+                width: 80px;
+            }
+            
+            /* Для колонок с действиями */
+            .admin-table th.col-actions,
+            .admin-table td.col-actions {
+                width: 120px;
+            }
+        }
+        
+        /* Мобильные карточки вместо таблиц для очень узких экранов */
+        @media (max-width: 480px) {
+            .mobile-card-list {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .mobile-card {
+                background-color: var(--bg-tertiary);
+                border-radius: 8px;
+                padding: 0.75rem;
+            }
+            
+            .mobile-card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 0.5rem;
+            }
+            
+            .mobile-card-title {
+                font-weight: 600;
+                color: var(--accent-primary);
+            }
+            
+            .mobile-card-subtitle {
+                color: var(--text-secondary);
+                font-size: 0.85rem;
+            }
+            
+            .mobile-card-body {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .mobile-card-item {
+                display: flex;
+                justify-content: space-between;
+            }
+            
+            .mobile-card-label {
+                color: var(--text-secondary);
+                font-size: 0.85rem;
+            }
+            
+            .mobile-card-value {
+                font-weight: 500;
+            }
+            
+            .mobile-card-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 0.5rem;
+                margin-top: 0.5rem;
+            }
+        }
+        
+        /* Адаптивные сетки */
+        .grid-responsive {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+        
+        @media (max-width: 1023px) {
+            .grid-responsive {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 639px) {
+            .grid-responsive {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+        }
+        
+        /* Улучшенные формы */
+        .form-control-group {
+            display: flex;
+            flex-direction: row;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+        
+        @media (max-width: 639px) {
+            .form-control-group {
+                flex-direction: column;
+            }
+            
+            .form-control-group .btn,
+            .form-control-group .form-control {
+                width: 100%;
+            }
+        }
+        
+        /* Адаптивные кнопки */
+        .btn-flex {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-flex svg {
+            margin-right: 0.5rem;
+        }
+        
+        @media (max-width: 480px) {
+            .btn-flex-mobile-icon-only {
+                width: 40px;
+                height: 40px;
+                padding: 0;
+                border-radius: 50%;
+            }
+            
+            .btn-flex-mobile-icon-only span {
+                display: none;
+            }
+            
+            .btn-flex-mobile-icon-only svg {
+                margin-right: 0;
+                width: 1.25rem;
+                height: 1.25rem;
+            }
+        }
+        
+        /* Адаптивность для контейнеров на ПК */
+        @media (min-width: 992px) {
+            .container {
+                max-width: 1100px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            
+            .main-content {
+                padding: 2rem;
+            }
+            
+            .stats-box {
+                padding: 1.75rem;
+                transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            }
+            
+            .stats-box:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+            }
+            
+            .stats-number {
+                font-size: 2.25rem;
+            }
+            
+            .stats-label {
+                font-size: 1rem;
+                margin-top: 0.5rem;
+            }
+            
+            /* Для таблиц на широких экранах */
+            .admin-table th,
+            .admin-table td {
+                padding: 1rem 1.5rem;
+            }
+            
+            .grid-responsive {
+                grid-gap: 1.5rem;
+            }
+            
+            /* Больше горизонтального пространства */
+            .card-body {
+                padding: 1.5rem;
+            }
+            
+            .form-control {
+                padding: 0.625rem 1rem;
+                font-size: 1rem;
+            }
+            
+            .admin-card .card-header {
+                padding: 1.25rem 1.5rem;
+            }
+        }
+        
+        /* Для очень широких экранов */
+        @media (min-width: 1440px) {
+            .container {
+                max-width: 1320px;
+            }
+        }
+        
+        /* Улучшения навигации для ПК */
+        @media (min-width: 768px) {
+            .navbar {
+                padding: 0.75rem 1.5rem;
+                text-align: center;
+            }
+            
+            .navbar-brand {
+                font-size: 1.75rem;
+                text-align: center;
+            }
+            
+            .navbar-nav {
+                margin-top: 1rem;
+                border-radius: 8px;
+                overflow: hidden;
+                display: flex;
+                background-color: var(--bg-tertiary);
+                max-width: 800px;
+                margin-left: auto;
+                margin-right: auto;
+                justify-content: center;
+            }
+            
+            .tab-button {
+                padding: 0.75rem 1.25rem;
+                text-align: center;
+                border-bottom: none;
+                border-top: 3px solid transparent;
+                flex: 1;
+                font-weight: 600;
+                letter-spacing: 0.02em;
+            }
+            
+            .tab-button.active {
+                background-color: rgba(247, 161, 76, 0.1);
+                border-top-color: var(--accent-primary);
+                color: var(--accent-primary);
+            }
+            
+            .tab-button:hover:not(.active) {
+                background-color: var(--bg-primary);
+            }
+        }
+        
+        /* Центрирование содержимого */
+        .container {
+            max-width: 1100px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Центрирование для ПК версии */
+        @media (min-width: 992px) {
+            .container {
+                max-width: 1100px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            
+            .main-content {
+                padding: 2rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .admin-card {
+                max-width: 1000px;
+                width: 100%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            
+            .grid-responsive {
+                width: 100%;
+                max-width: 1000px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+        
+        /* Фиксированная нижняя панель с логотипом и навигацией для ПК */
+        @media (min-width: 768px) {
+            .footer-navbar {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background-color: var(--bg-secondary);
+                box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.15);
+                padding: 0.75rem 1.5rem;
+                z-index: 100;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .footer-navbar-brand {
+                color: var(--accent-primary);
+                font-weight: 700;
+                font-size: 1.5rem;
+                text-align: center;
+                margin-bottom: 0.5rem;
+            }
+            
+            .footer-navbar-nav {
+                display: flex;
+                justify-content: center;
+                gap: 1rem;
+                width: 100%;
+                max-width: 800px;
+            }
+            
+            .bottom-navigation {
+                display: none;
+            }
+            
+            .main-content {
+                padding-bottom: 7rem;
+            }
+            
+            .navbar {
+                display: none;
+            }
+        }
+        
+        /* Исправляем сетку для адаптивности */
+        .grid-responsive {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 1rem;
+        }
+        
+        /* Корректировка для PC */
+        @media (min-width: 768px) {
+            .grid-responsive {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .grid-responsive {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        /* Увеличиваем размеры для больших экранов */
+        @media (min-width: 1280px) {
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+            
+            .main-content {
+                padding: 2rem;
+            }
+            
+            .admin-table {
+                font-size: 1rem;
+            }
+            
+            .bottom-navigation {
+                display: none;
+            }
+            
+            .admin-card {
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            
+            .admin-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            }
+            
+            .stats-box {
+                padding: 1.5rem;
+                min-height: 140px;
+            }
+            
+            .stats-number {
+                font-size: 2.5rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .stats-label {
+                font-size: 1rem;
+            }
+            
+            .table-responsive {
+                overflow-x: visible;
+            }
+            
+            /* Стиль для большого экрана с действиями админов */
+            #actionsTable td {
+                padding: 1rem;
+                font-size: 1.1rem;
+            }
+            
+            .card-header {
+                font-size: 1.3rem !important;
+                padding: 1.2rem !important;
+            }
+        }
+        
+        /* Стили для формы на ПК */
+        @media (min-width: 1280px) {
+            .form-control {
+                height: 3rem;
+                font-size: 1.1rem;
+                padding: 0 1rem;
+            }
+            
+            .btn {
+                height: 3rem;
+                font-size: 1.1rem;
+            }
+            
+            .navbar-brand {
+                font-size: 2rem;
+            }
+            
+            .tab-button {
+                font-size: 1.2rem;
+                padding: 0.8rem 1.2rem;
+            }
+            
+            #adminInfo {
+                font-size: 1rem;
+                margin-top: 0.5rem;
+            }
+            
+            /* Улучшения для таблицы на ПК */
+            .admin-table th {
+                font-size: 1.1rem;
+                padding: 1rem;
+            }
+            
+            .admin-table td {
+                font-size: 1.1rem;
+                padding: 1rem;
+            }
+            
+            /* Увеличиваем размер кнопок в таблице */
+            .admin-table .btn {
+                padding: 0.5rem 1rem;
+                font-size: 1rem;
+            }
+        }
+        
+        /* Фиксируем ширину контейнера для больших экранов */
+        @media (min-width: 1600px) {
+            .container {
+                max-width: 1400px;
+                margin: 0 auto;
+            }
+        }
+        
+        /* Улучшаем отображение на очень больших экранах */
+        @media (min-width: 1920px) {
+            .container {
+                max-width: 1600px;
+            }
+            
+            .stats-box {
+                padding: 2rem;
+                min-height: 180px;
+            }
+            
+            .stats-number {
+                font-size: 3rem;
+            }
+            
+            .stats-label {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Loader -->
+    <div id="loader" class="loader">
+        <div class="spinner"></div>
+    </div>
+    
+    <!-- Контейнер для уведомлений -->
+    <div id="notificationContainer"></div>
+    
+    <!-- Сообщение об ошибке доступа -->
+    <div id="accessDenied" class="hidden fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-80 z-50">
+        <div class="bg-gray-800 p-8 rounded-xl max-w-md text-center">
+            <svg class="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+            <h2 class="text-xl font-bold text-white mb-2">Доступ запрещен</h2>
+            <p class="text-gray-400 mb-6">У вас нет прав для доступа к панели администратора.</p>
+            <a href="index.html" class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded transition duration-200">
+                Вернуться на главную
+            </a>
+        </div>
+    </div>
+
+    <!-- Админ-панель -->
+    <div id="app" class="hidden">
+        <!-- Верхняя навигация -->
+        <header class="navbar px-4 py-3">
+            <div class="flex justify-center w-full">
+                <div class="navbar-brand text-center">
+                    <span class="text-white">LKN</span>Bank
+                </div>
+            </div>
+            
+            <div id="adminInfo" class="text-sm text-gray-400 text-center w-full mt-2"></div>
+            
+            <nav class="navbar-nav mt-4 hidden md:flex">
+                <div class="flex space-x-6 justify-center w-full">
+                    <button id="statsNavButton" class="tab-button active" onclick="showPage('stats')">
+                        Статистика
+                    </button>
+                    <button id="usersNavButton" class="tab-button" onclick="showPage('users')">
+                        Пользователи
+                    </button>
+                    <button id="balanceNavButton" class="tab-button" onclick="showPage('balance')">
+                        Управление балансом
+                    </button>
+                    <button id="blockNavButton" class="tab-button" onclick="showPage('block')">
+                        Блокировка
+                    </button>
+                    <button id="promoNavButton" class="tab-button" onclick="showPage('promo')">
+                        Промокоды
+                    </button>
+                </div>
+            </nav>
+        </header>
+        
+        <!-- Нижняя навигация для мобильных -->
+        <div class="bottom-navigation">
+            <div class="nav-item active" onclick="showPage('stats')">
+                <svg class="nav-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span>Статистика</span>
+            </div>
+            <div class="nav-item" onclick="showPage('users')">
+                <svg class="nav-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+                <span>Пользователи</span>
+            </div>
+            <div class="nav-item" onclick="showPage('balance')">
+                <svg class="nav-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span>Баланс</span>
+            </div>
+            <div class="nav-item" onclick="showPage('block')">
+                <svg class="nav-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+                <span>Блокировка</span>
+            </div>
+            <div class="nav-item" onclick="showPage('promo')">
+                <svg class="nav-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                </svg>
+                <span>Промокоды</span>
+            </div>
+        </div>
+        
+        <!-- Основной контент -->
+        <main class="container mx-auto main-content">
+            <!-- Страница статистики -->
+            <div id="statsPage" class="page active">
+                <div class="grid grid-responsive mb-6">
+                    <div class="stats-box">
+                        <div class="stats-number" id="totalUsers">-</div>
+                        <div class="stats-label">Пользователей</div>
+                    </div>
+                    <div class="stats-box">
+                        <div class="stats-number" id="totalTransactions">-</div>
+                        <div class="stats-label">Транзакций</div>
+                    </div>
+                    <div class="stats-box">
+                        <div class="stats-number" id="totalBalance">-</div>
+                        <div class="stats-label">Общий баланс</div>
+                    </div>
+                    <div class="stats-box">
+                        <div class="stats-number" id="blockedUsers">-</div>
+                        <div class="stats-label">Заблокированных</div>
+                    </div>
+                </div>
+                
+                <div class="admin-card">
+                    <div class="card-header">
+                        <span>Последние действия администраторов</span>
+                        <button onclick="loadActions()" class="btn btn-secondary btn-sm btn-flex">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            <span>Обновить</span>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="admin-table w-full">
+                                <thead>
+                                    <tr>
+                                        <th width="20%" class="col-narrow">Время</th>
+                                        <th width="80%">Действие</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="actionsTable">
+                                    <tr>
+                                        <td colspan="2" class="text-center text-gray-500 py-6">Загрузка данных...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Страница пользователей -->
+            <div id="usersPage" class="page">
+                <div class="admin-card mb-6">
+                    <div class="card-header">
+                        <span>Поиск пользователей</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-control-group flex flex-col md:flex-row gap-4 items-center">
+                            <input type="text" id="userSearch" class="form-control w-full md:w-3/4" placeholder="Введите ID, имя или username">
+                            <button id="searchUserBtn" class="btn btn-primary btn-flex w-full md:w-1/4" onclick="searchUsers()">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                                <span>Найти</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="admin-card">
+                    <div class="card-header">
+                        <span>Список пользователей</span>
+                        <button onclick="loadUsers()" class="btn btn-secondary btn-sm btn-flex">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            <span>Обновить</span>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="admin-table w-full">
+                                <thead>
+                                    <tr>
+                                        <th width="10%" class="col-narrow">ID</th>
+                                        <th width="50%">Имя</th>
+                                        <th width="15%" class="col-narrow">Баланс</th>
+                                        <th width="25%" class="col-actions">Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTable">
+                                    <tr>
+                                        <td colspan="4" class="text-center text-gray-500 py-6">Загрузка пользователей...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Мобильная версия списка (скрыта на десктопе) -->
+                        <div id="usersMobileList" class="mobile-card-list hidden md:hidden"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Страница управления балансом с улучшенной адаптивностью для ПК -->
+            <div id="balancePage" class="page">
+                <div class="admin-card">
+                    <div class="card-header">
+                        <span>Изменение баланса пользователя</span>
+                    </div>
+                    <div class="card-body">
+                        <form id="balanceForm" class="grid grid-cols-1 gap-4 max-w-4xl mx-auto">
+                            <div class="form-group">
+                                <label for="balanceUserId">ID пользователя</label>
+                                <input type="number" id="balanceUserId" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="balanceAmount">Сумма</label>
+                                <input type="number" id="balanceAmount" class="form-control" required min="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="balanceDescription">Комментарий</label>
+                                <input type="text" id="balanceDescription" class="form-control" placeholder="Необязательно">
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                                <button type="button" id="addBalanceBtn" class="btn btn-primary btn-flex justify-center py-3">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                    <span>Пополнить баланс</span>
+                                </button>
+                                <button type="button" id="removeBalanceBtn" class="btn btn-danger btn-flex justify-center py-3">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                                    </svg>
+                                    <span>Списать с баланса</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Страница блокировки пользователей с улучшенной адаптивностью для ПК -->
+            <div id="blockPage" class="page">
+                <div class="admin-card">
+                    <div class="card-header">
+                        <span>Блокировка и разблокировка пользователей</span>
+                    </div>
+                    <div class="card-body">
+                        <form id="blockForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+                            <div class="form-group md:col-span-2">
+                                <label for="blockUserId">ID пользователя</label>
+                                <input type="number" id="blockUserId" class="form-control" required>
+                            </div>
+                            <div class="form-group md:col-span-2">
+                                <label for="blockReason">Причина блокировки</label>
+                                <input type="text" id="blockReason" class="form-control" placeholder="Укажите причину блокировки">
+                            </div>
+                            <div class="md:col-span-1">
+                                <button type="button" id="blockUserBtn" class="btn btn-danger w-full flex justify-center items-center py-3">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                    </svg>
+                                    Заблокировать
+                                </button>
+                            </div>
+                            <div class="md:col-span-1">
+                                <button type="button" id="unblockUserBtn" class="btn btn-primary w-full flex justify-center items-center py-3">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
+                                    </svg>
+                                    Разблокировать
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Страница промокодов с улучшенной адаптивностью для ПК -->
+            <div id="promoPage" class="page">
+                <div class="admin-card">
+                    <div class="card-header">
+                        <span>Создание промокода</span>
+                    </div>
+                    <div class="card-body">
+                        <form id="promoForm" class="grid grid-cols-1 gap-4 max-w-4xl mx-auto">
+                            <div class="form-group">
+                                <label for="promoAmount">Сумма (Ⱡ)</label>
+                                <input type="number" id="promoAmount" class="form-control" required min="1">
+                            </div>
+                            <div class="form-group">
+                                <button type="button" id="createPromoBtn" class="btn btn-primary w-full py-3">
+                                    Создать промокод
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Результат создания промокода -->
+                        <div id="promoResult" class="mt-4 p-4 bg-gray-800 rounded-lg text-center hidden">
+                            <h3 class="text-xl font-bold mb-2">Промокод создан!</h3>
+                            <div class="bg-gray-900 p-3 rounded-lg mb-3">
+                                <div class="text-2xl font-mono font-bold text-accent-primary" id="promoCode">CODE123</div>
+                                <div class="text-sm text-gray-400 mt-1">
+                                    на сумму <span id="promoCodeAmount">100</span> Ⱡ
+                                </div>
+                            </div>
+                            <button type="button" onclick="copyPromoCode()" class="btn btn-secondary">
+                                <svg class="w-4 h-4 mr-1 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                    </svg>
+                                    Копировать
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                
+                <div class="admin-card">
+                    <div class="card-header">
+                        <span>Активные промокоды</span>
+                        <button onclick="loadPromos()" class="btn btn-secondary btn-sm btn-flex">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                    </svg>
+                            <span>Обновить</span>
+                                </button>
+                            </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="admin-table w-full">
+                                <thead>
+                                    <tr>
+                                        <th width="10%">ID</th>
+                                        <th width="40%">Код</th>
+                                        <th width="20%">Сумма</th>
+                                        <th width="20%">Статус</th>
+                                        <th width="10%">Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="promosTable">
+                                    <tr>
+                                        <td colspan="5" class="text-center text-gray-500 py-6">Загрузка промокодов...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Мобильная версия списка (скрыта на десктопе) -->
+                        <div id="promosMobileList" class="mobile-card-list hidden md:hidden"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Страница информации о пользователе -->
+            <div id="userInfoPage" class="page">
+                <div class="flex justify-between items-center mb-4">
+                    <button class="btn btn-secondary btn-flex" onclick="showPage(currentPage)">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        <span>Назад</span>
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-1">
+                <div class="admin-card mb-6">
+                    <div class="card-header">
+                        <span>Информация о пользователе</span>
+                    </div>
+                    <div class="card-body">
+                                <div class="grid grid-cols-1 gap-4">
+                            <div class="form-group">
+                                <label>ID пользователя</label>
+                                        <div id="modalUserId" class="p-2 bg-gray-800 rounded font-semibold">-</div>
+                            </div>
+                            <div class="form-group">
+                                <label>Имя</label>
+                                        <div id="modalUserName" class="p-2 bg-gray-800 rounded font-semibold">-</div>
+                            </div>
+                            <div class="form-group">
+                                <label>Username</label>
+                                        <div id="modalUsername" class="p-2 bg-gray-800 rounded font-semibold">-</div>
+                            </div>
+                            <div class="form-group">
+                                <label>Баланс</label>
+                                        <div id="modalBalance" class="p-2 bg-gray-800 rounded font-semibold">-</div>
+                            </div>
+                            <div class="form-group">
+                                <label>Статус</label>
+                                        <div id="modalStatus" class="p-2 bg-gray-800 rounded font-semibold">-</div>
+                            </div>
+                            <div class="form-group">
+                                <label>Дата регистрации</label>
+                                        <div id="modalRegDate" class="p-2 bg-gray-800 rounded font-semibold">-</div>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                    <div class="lg:col-span-2">
+                <div class="admin-card">
+                    <div class="card-header">
+                        <span>Последние транзакции</span>
+                    </div>
+                    <div class="card-body">
+                                <div class="table-responsive">
+                            <table class="admin-table w-full">
+                                <thead>
+                                    <tr>
+                                                <th class="col-narrow">Дата</th>
+                                        <th>Тип</th>
+                                                <th class="col-narrow">Сумма</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modalTransactions">
+                                    <tr>
+                                        <td colspan="3" class="text-center text-gray-500 py-6">Нет транзакций</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Модальное окно для просмотра деталей пользователя -->
+    <div class="modal fade" id="userModal" tabindex="-1" role="dialog" aria-labelledby="userModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userModalLabel">Информация о пользователе</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Основная информация</h5>
+                            <table class="table table-sm">
+                                <tr><th>ID:</th><td id="modalUserId"></td></tr>
+                                <tr><th>Имя:</th><td id="modalUserName"></td></tr>
+                                <tr><th>Username:</th><td id="modalUsername"></td></tr>
+                                <tr><th>Баланс:</th><td id="modalBalance"></td></tr>
+                                <tr><th>Статус:</th><td id="modalStatus"></td></tr>
+                                <tr><th>Регистрация:</th><td id="modalRegDate"></td></tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Последние транзакции</h5>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Дата</th>
+                                            <th>Тип</th>
+                                            <th>Сумма</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="modalTransactions">
+                                        <!-- Данные транзакций будут добавлены через JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подвал с навигацией для ПК -->
+    <footer class="footer-navbar">
+        <div class="footer-navbar-brand">
+            <span class="text-white">LKN</span>Bank
+        </div>
+        
+        <nav class="footer-navbar-nav">
+            <button id="statsFooterBtn" class="tab-button active" onclick="showPage('stats')">
+                Статистика
+            </button>
+            <button id="usersFooterBtn" class="tab-button" onclick="showPage('users')">
+                Пользователи
+            </button>
+            <button id="balanceFooterBtn" class="tab-button" onclick="showPage('balance')">
+                Управление балансом
+            </button>
+            <button id="blockFooterBtn" class="tab-button" onclick="showPage('block')">
+                Блокировка
+            </button>
+            <button id="promoFooterBtn" class="tab-button" onclick="showPage('promo')">
+                Промокоды
+            </button>
+        </nav>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Переменные
+        let currentUserId = null;
+        let currentPage = 'stats';
+        
+        // Утилиты
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            // Добавляем соответствующую иконку
+            let iconSvg = '';
+            if (type === 'success') {
+                iconSvg = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>`;
+            } else if (type === 'error') {
+                iconSvg = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>`;
+            }
+            
+            notification.innerHTML = `${iconSvg}<span>${message}</span>`;
+            
+            const notificationContainer = document.getElementById('notificationContainer');
+            if (notificationContainer) {
+                // Удаляем старые уведомления
+                const oldNotifications = notificationContainer.querySelectorAll('.notification');
+                if (oldNotifications.length > 0) {
+                    oldNotifications.forEach(oldNotification => {
+                        oldNotification.classList.remove('show');
+                        setTimeout(() => {
+                            oldNotification.remove();
+                        }, 300);
+                    });
+                }
+                
+                notificationContainer.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.classList.add('show');
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                        setTimeout(() => {
+                            notification.remove();
+                        }, 300);
+                    }, 2000);
+                }, 100);
+            }
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        }
+        
+        function showPage(pageId) {
+            // Сохраняем текущую страницу для кнопки назад
+            if (!pageId.includes('Page')) {
+                pageId += 'Page';
+            }
+            
+            if (pageId !== 'balancePage' && pageId !== 'blockPage' && 
+                pageId !== 'promoPage' && pageId !== 'userInfoPage') {
+                currentPage = pageId.replace('Page', '');
+            }
+            
+            // Скрываем все страницы
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Показываем нужную страницу
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+            }
+            
+            // Обновляем активную кнопку в навигации
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Обновляем активный элемент в нижней навигации
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Активируем соответствующие элементы навигации
+            if (pageId === 'statsPage' || pageId === 'stats') {
+                const statsButton = document.getElementById('statsNavButton');
+                if (statsButton) statsButton.classList.add('active');
+                
+                const navItems = document.querySelectorAll('.nav-item');
+                if (navItems && navItems.length > 0) navItems[0].classList.add('active');
+            } else if (pageId === 'usersPage' || pageId === 'users') {
+                const usersButton = document.getElementById('usersNavButton');
+                if (usersButton) usersButton.classList.add('active');
+                
+                const navItems = document.querySelectorAll('.nav-item');
+                if (navItems && navItems.length > 1) navItems[1].classList.add('active');
+            } else if (pageId === 'balancePage' || pageId === 'balance') {
+                const balanceButton = document.getElementById('balanceNavButton');
+                if (balanceButton) balanceButton.classList.add('active');
+                
+                const navItems = document.querySelectorAll('.nav-item');
+                if (navItems && navItems.length > 2) navItems[2].classList.add('active');
+            } else if (pageId === 'blockPage' || pageId === 'block') {
+                const blockButton = document.getElementById('blockNavButton');
+                if (blockButton) blockButton.classList.add('active');
+                
+                const navItems = document.querySelectorAll('.nav-item');
+                if (navItems && navItems.length > 3) navItems[3].classList.add('active');
+            } else if (pageId === 'promoPage' || pageId === 'promo') {
+                const promoButton = document.getElementById('promoNavButton');
+                if (promoButton) promoButton.classList.add('active');
+                
+                const navItems = document.querySelectorAll('.nav-item');
+                if (navItems && navItems.length > 4) navItems[4].classList.add('active');
+            }
+            
+            // Если переходим на страницу пользователей, загружаем список
+            if (pageId === 'usersPage' || pageId === 'users') {
+                loadUsers();
+            }
+        }
+        
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', () => {
+            // Получаем ID из URL, если есть
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlAdminId = urlParams.get('admin_id');
+            
+            // Удаляем лоадер
+            const loader = document.getElementById('loader');
+            if (loader) loader.style.display = 'none';
+            
+            // Показываем админ-панель
+            const app = document.getElementById('app');
+            if (app) app.classList.remove('hidden');
+            
+            // Отображаем ID администратора
+            const adminInfo = document.getElementById('adminInfo');
+            if (adminInfo && urlAdminId) adminInfo.textContent = `Администратор (ID: ${urlAdminId})`;
+            
+            // Показываем верхнее меню на десктопах
+            const navbar = document.querySelector('.navbar-nav');
+            if (navbar && window.innerWidth >= 640) {
+                navbar.classList.remove('hidden');
+            }
+            
+            // Загружаем данные
+            loadStatistics();
+            loadActions();
+            
+            // Инициализируем обработчики событий
+            initEventHandlers();
+        });
+        
+        // Загрузка данных
+        function loadStatistics() {
+            fetch('/api/admin/stats')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const totalUsers = document.getElementById('totalUsers');
+                        const totalTransactions = document.getElementById('totalTransactions');
+                        const totalBalance = document.getElementById('totalBalance');
+                        const blockedUsers = document.getElementById('blockedUsers');
+                        
+                        if (totalUsers) totalUsers.textContent = data.stats.total_users;
+                        if (totalTransactions) totalTransactions.textContent = data.stats.total_transactions;
+                        if (totalBalance) totalBalance.textContent = `${data.stats.total_balance} Ⱡ`;
+                        if (blockedUsers) blockedUsers.textContent = data.stats.blocked_users;
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при загрузке статистики:', error);
+                    showNotification('Ошибка при загрузке статистики', 'error');
+                });
+        }
+        
+        function loadActions() {
+            fetch('/api/admin/actions')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const actionsTable = document.getElementById('actionsTable');
+                        if (!actionsTable) return;
+                        
+                        actionsTable.innerHTML = '';
+                        
+                        if (data.actions.length === 0) {
+                            actionsTable.innerHTML = '<tr><td colspan="2" class="text-center text-gray-500 py-6">Нет действий</td></tr>';
+                            return;
+                        }
+                        
+                        data.actions.forEach(action => {
+                            const tr = document.createElement('tr');
+                            const formattedDate = formatDate(action.timestamp);
+                            
+                            tr.innerHTML = `
+                                <td class="text-gray-400">${formattedDate}</td>
+                                <td>${action.action}</td>
+                            `;
+                            actionsTable.appendChild(tr);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при загрузке действий:', error);
+                    showNotification('Ошибка при загрузке списка действий', 'error');
+                });
+        }
+        
+        function loadUsers() {
+            fetch('/api/admin/users')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const usersTable = document.getElementById('usersTable');
+                        if (!usersTable) return;
+                        
+                        usersTable.innerHTML = '';
+                        
+                        if (data.users.length === 0) {
+                            usersTable.innerHTML = '<tr><td colspan="4" class="text-center text-gray-500 py-6">Нет пользователей</td></tr>';
+                            return;
+                        }
+                        
+                        data.users.forEach(user => {
+                            const tr = document.createElement('tr');
+                            
+                            const statusClass = user.is_blocked ? 'badge-danger' : 'badge-success';
+                            const statusText = user.is_blocked ? 'Заблокирован' : 'Активен';
+                            
+                            tr.innerHTML = `
+                                <td>${user.user_id}</td>
+                                <td>${user.first_name || ''} ${user.last_name || ''}</td>
+                                <td>${user.balance} Ⱡ</td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm" onclick="viewUser(${user.user_id})">
+                                        Просмотр
+                                    </button>
+                                </td>
+                            `;
+                            usersTable.appendChild(tr);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при загрузке пользователей:', error);
+                    showNotification('Ошибка при загрузке списка пользователей', 'error');
+                });
+        }
+        
+        function searchUsers() {
+            const userSearch = document.getElementById('userSearch');
+            if (!userSearch) return;
+            
+            const query = userSearch.value.trim();
+            
+            if (query === '') {
+                loadUsers();
+                return;
+            }
+            
+            fetch(`/api/admin/search_users?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const usersTable = document.getElementById('usersTable');
+                        if (!usersTable) return;
+                        
+                        usersTable.innerHTML = '';
+                        
+                        if (data.users.length === 0) {
+                            usersTable.innerHTML = '<tr><td colspan="4" class="text-center text-gray-500 py-6">Пользователи не найдены</td></tr>';
+                            return;
+                        }
+                        
+                        data.users.forEach(user => {
+                            const tr = document.createElement('tr');
+                            
+                            const statusClass = user.is_blocked ? 'badge-danger' : 'badge-success';
+                            const statusText = user.is_blocked ? 'Заблокирован' : 'Активен';
+                            
+                            tr.innerHTML = `
+                                <td>${user.user_id}</td>
+                                <td>${user.first_name || ''} ${user.last_name || ''}</td>
+                                <td>${user.balance} Ⱡ</td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm" onclick="viewUser(${user.user_id})">
+                                        Просмотр
+                                    </button>
+                                </td>
+                            `;
+                            usersTable.appendChild(tr);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при поиске пользователей:', error);
+                    showNotification('Ошибка при поиске пользователей', 'error');
+                });
+        }
+        
+        function viewUser(userId) {
+            currentUserId = userId;
+            
+            // Загружаем информацию о пользователе
+            fetch(`/api/admin/user?id=${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const user = data.user;
+                        
+                        // Заполняем информацию о пользователе
+                        const modalUserId = document.getElementById('modalUserId');
+                        const modalUserName = document.getElementById('modalUserName');
+                        const modalUsername = document.getElementById('modalUsername');
+                        const modalBalance = document.getElementById('modalBalance');
+                        const modalStatus = document.getElementById('modalStatus');
+                        const modalRegDate = document.getElementById('modalRegDate');
+                        
+                        if (modalUserId) modalUserId.textContent = user.user_id;
+                        if (modalUserName) modalUserName.textContent = `${user.first_name || ''} ${user.last_name || ''}`;
+                        if (modalUsername) modalUsername.textContent = user.username ? `@${user.username}` : 'не указан';
+                        if (modalBalance) modalBalance.textContent = `${user.balance} Ⱡ`;
+                        
+                        const statusClass = user.is_blocked ? 'badge-danger' : 'badge-success';
+                        const statusText = user.is_blocked ? 'Заблокирован' : 'Активен';
+                        if (modalStatus) modalStatus.innerHTML = `<span class="badge ${statusClass}">${statusText}</span>`;
+                        
+                        const regDate = new Date(user.created_at);
+                        if (modalRegDate) modalRegDate.textContent = regDate.toLocaleDateString();
+                        
+                        // Загружаем транзакции пользователя
+                        fetch(`/api/admin/user_transactions?id=${userId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    const txTable = document.getElementById('modalTransactions');
+                                    if (!txTable) return;
+                                    
+                                    txTable.innerHTML = '';
+                                    
+                                    if (data.transactions.length === 0) {
+                                        txTable.innerHTML = '<tr><td colspan="3" class="text-center text-gray-500 py-6">Нет транзакций</td></tr>';
+                                        return;
+                                    }
+                                    
+                                    data.transactions.forEach(tx => {
+                                        const tr = document.createElement('tr');
+                                        const date = new Date(tx.created_at);
+                                        
+                                        let txType, txAmount;
+                                        if (tx.sender_id == userId) {
+                                            txType = 'Исходящий';
+                                            txAmount = `<span class="text-red-500">-${tx.amount} Ⱡ</span>`;
+                                        } else {
+                                            txType = 'Входящий';
+                                            txAmount = `<span class="text-green-500">+${tx.amount} Ⱡ</span>`;
+                                        }
+                                        
+                                        tr.innerHTML = `
+                                            <td>${date.toLocaleDateString()}</td>
+                                            <td>${txType}</td>
+                                            <td>${txAmount}</td>
+                                        `;
+                                        txTable.appendChild(tr);
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Ошибка при загрузке транзакций:', error);
+                                showNotification('Ошибка при загрузке транзакций пользователя', 'error');
+                            });
+                        
+                        // Показываем страницу информации о пользователе
+                        showPage('userInfoPage');
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при загрузке информации о пользователе:', error);
+                    showNotification('Ошибка при загрузке информации о пользователе', 'error');
+                });
+        }
+        
+        function initEventHandlers() {
+            // Обработчик поиска пользователей
+            const searchUserBtn = document.getElementById('searchUserBtn');
+            if (searchUserBtn) {
+                searchUserBtn.addEventListener('click', searchUsers);
+            }
+            
+            const userSearch = document.getElementById('userSearch');
+            if (userSearch) {
+                userSearch.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        searchUsers();
+                    }
+                });
+            }
+            
+            // Обработчик создания промокода
+            const createPromoBtn = document.getElementById('createPromoBtn');
+            if (createPromoBtn) {
+                createPromoBtn.addEventListener('click', createPromoCode);
+            }
+            
+            // Обработчик копирования промокода
+            const copyPromoBtn = document.getElementById('copyPromoBtn');
+            if (copyPromoBtn) {
+                copyPromoBtn.addEventListener('click', copyPromoCode);
+            }
+            
+            // Обработчики управления балансом
+            const addBalanceBtn = document.getElementById('addBalanceBtn');
+            if (addBalanceBtn) {
+                addBalanceBtn.addEventListener('click', () => manageBalance('add'));
+            }
+            
+            const removeBalanceBtn = document.getElementById('removeBalanceBtn');
+            if (removeBalanceBtn) {
+                removeBalanceBtn.addEventListener('click', () => manageBalance('remove'));
+            }
+            
+            // Обработчики блокировки
+            const blockUserBtn = document.getElementById('blockUserBtn');
+            if (blockUserBtn) {
+                blockUserBtn.addEventListener('click', blockUser);
+            }
+            
+            const unblockUserBtn = document.getElementById('unblockUserBtn');
+            if (unblockUserBtn) {
+                unblockUserBtn.addEventListener('click', unblockUser);
+            }
+            
+            // Загружаем пользователей при переходе на страницу
+            document.getElementById('usersNavButton').addEventListener('click', () => {
+                setTimeout(loadUsers, 100);
+            });
+        }
+        
+        // Обработчик создания промокода
+        function createPromoCode() {
+            const promoAmount = document.getElementById('promoAmount');
+            if (!promoAmount) {
+                console.error("Элемент promoAmount не найден");
+                showNotification('Ошибка в форме промокода', 'error');
+                return;
+            }
+            
+            const amount = promoAmount.value;
+            const length = document.getElementById('promoLength')?.value || 8;
+            
+            if (!amount || amount < 1) {
+                showNotification('Укажите сумму промокода', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('amount', amount);
+            formData.append('length', length);
+            
+            fetch('/api/admin/promo', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Показываем результат
+                    const promoResult = document.getElementById('promoResult');
+                    const promoCode = document.getElementById('promoCode');
+                    const promoCodeAmount = document.getElementById('promoCodeAmount');
+                    
+                    if (promoResult) promoResult.classList.remove('hidden');
+                    if (promoCode) promoCode.textContent = data.code;
+                    if (promoCodeAmount) promoCodeAmount.textContent = data.amount;
+                    
+                    showNotification('Промокод успешно создан!', 'success');
+                } else {
+                    showNotification(data.error || 'Ошибка при создании промокода', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при создании промокода:', error);
+                showNotification('Ошибка при создании промокода', 'error');
+            });
+        }
+        
+        // Функция для копирования промокода
+        function copyPromoCode() {
+            const promoCode = document.getElementById('promoCode');
+            if (!promoCode) return;
+            
+            const textToCopy = promoCode.textContent;
+            
+            // Создаем временный элемент для копирования
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            
+            showNotification('Промокод скопирован в буфер обмена', 'success');
+        }
+        
+        // Управление балансом пользователя
+        function manageBalance(action) {
+            const userId = document.getElementById('balanceUserId').value;
+            const amount = document.getElementById('balanceAmount').value;
+            const description = document.getElementById('balanceDescription').value || '';
+            
+            if (!userId || !amount || amount < 1) {
+                showNotification('Укажите ID пользователя и сумму', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('user_id', userId);
+            formData.append('amount', amount);
+            formData.append('description', description);
+            
+            const endpoint = action === 'add' ? '/api/admin/add_balance' : '/api/admin/remove_balance';
+            
+            fetch(endpoint, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const actionText = action === 'add' ? 'пополнен' : 'списан';
+                    showNotification(`Баланс пользователя успешно ${actionText}`, 'success');
+                    
+                    // Очищаем форму
+                    document.getElementById('balanceForm').reset();
+                } else {
+                    showNotification(data.error || `Ошибка при ${action === 'add' ? 'пополнении' : 'списании'} баланса`, 'error');
+                }
+            })
+            .catch(error => {
+                console.error(`Ошибка при ${action === 'add' ? 'пополнении' : 'списании'} баланса:`, error);
+                showNotification(`Ошибка при ${action === 'add' ? 'пополнении' : 'списании'} баланса`, 'error');
+            });
+        }
+        
+        // Блокировка пользователя
+        function blockUser() {
+            const userId = document.getElementById('blockUserId').value;
+            const reason = document.getElementById('blockReason').value || '';
+            
+            if (!userId) {
+                showNotification('Укажите ID пользователя', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('user_id', userId);
+            formData.append('reason', reason);
+            
+            fetch('/api/admin/block_user', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Пользователь успешно заблокирован', 'success');
+                    
+                    // Обновляем статистику
+                    loadStatistics();
+                    
+                    // Очищаем форму
+                    document.getElementById('blockForm').reset();
+                } else {
+                    showNotification(data.error || 'Ошибка при блокировке пользователя', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при блокировке пользователя:', error);
+                showNotification('Ошибка при блокировке пользователя', 'error');
+            });
+        }
+        
+        // Разблокировка пользователя
+        function unblockUser() {
+            const userId = document.getElementById('blockUserId').value;
+            
+            if (!userId) {
+                showNotification('Укажите ID пользователя', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('user_id', userId);
+            
+            fetch('/api/admin/unblock_user', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Пользователь успешно разблокирован', 'success');
+                    
+                    // Обновляем статистику
+                    loadStatistics();
+                    
+                    // Очищаем форму
+                    document.getElementById('blockForm').reset();
+                } else {
+                    showNotification(data.error || 'Ошибка при разблокировке пользователя', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при разблокировке пользователя:', error);
+                showNotification('Ошибка при разблокировке пользователя', 'error');
+            });
+        }
+    </script>
+
+    <!-- Добавляем JavaScript для улучшенной адаптивности -->
+    <script>
+        // Добавляем обработчик изменения размеров экрана для адаптивности
+        window.addEventListener('DOMContentLoaded', function() {
+            // Первоначальная адаптация
+            adaptLayoutToScreenSize();
+            
+            // Отслеживаем изменение размера окна
+            window.addEventListener('resize', adaptLayoutToScreenSize);
+        });
+        
+        // Функция для адаптации макета к разным размерам экрана
+        function adaptLayoutToScreenSize() {
+            const width = window.innerWidth;
+            const statsBoxes = document.querySelectorAll('.stats-box');
+            const tables = document.querySelectorAll('.admin-table');
+            const cardHeaders = document.querySelectorAll('.card-header');
+            
+            // Адаптация для больших экранов (десктоп)
+            if (width >= 1280) {
+                // Увеличиваем размеры для статистики
+                statsBoxes.forEach(box => {
+                    box.style.padding = '1.5rem';
+                    const number = box.querySelector('.stats-number');
+                    const label = box.querySelector('.stats-label');
+                    if (number) number.style.fontSize = '2.5rem';
+                    if (label) label.style.fontSize = '1rem';
+                });
+                
+                // Улучшаем отступы в таблицах
+                tables.forEach(table => {
+                    const cells = table.querySelectorAll('td, th');
+                    cells.forEach(cell => {
+                        cell.style.padding = '1rem 1.5rem';
+                        cell.style.fontSize = '1.1rem';
+                    });
+                });
+                
+                // Улучшаем заголовки карточек
+                cardHeaders.forEach(header => {
+                    header.style.padding = '1.2rem';
+                    header.style.fontSize = '1.3rem';
+                });
+            }
+            // Адаптация для планшетов
+            else if (width >= 768 && width < 1280) {
+                // Сбрасываем инлайн-стили на планшетах
+                statsBoxes.forEach(box => {
+                    box.style.padding = '1rem';
+                    const number = box.querySelector('.stats-number');
+                    const label = box.querySelector('.stats-label');
+                    if (number) number.style.fontSize = '1.75rem';
+                    if (label) label.style.fontSize = '0.9rem';
+                });
+                
+                tables.forEach(table => {
+                    const cells = table.querySelectorAll('td, th');
+                    cells.forEach(cell => {
+                        cell.style.padding = '0.75rem 1rem';
+                        cell.style.fontSize = '1rem';
+                    });
+                });
+                
+                cardHeaders.forEach(header => {
+                    header.style.padding = '1rem';
+                    header.style.fontSize = '1.1rem';
+                });
+            }
+            // Адаптация для мобильных
+            else {
+                // Сбрасываем инлайн-стили на мобильных
+                statsBoxes.forEach(box => {
+                    box.style.padding = '0.75rem';
+                    const number = box.querySelector('.stats-number');
+                    const label = box.querySelector('.stats-label');
+                    if (number) number.style.fontSize = '1.5rem';
+                    if (label) label.style.fontSize = '0.8rem';
+                });
+                
+                tables.forEach(table => {
+                    const cells = table.querySelectorAll('td, th');
+                    cells.forEach(cell => {
+                        cell.style.padding = '0.5rem';
+                        cell.style.fontSize = '0.9rem';
+                    });
+                });
+                
+                cardHeaders.forEach(header => {
+                    header.style.padding = '0.75rem';
+                    header.style.fontSize = '1rem';
+                });
+            }
+        }
+    </script>
+
+    <!-- Обновляем контейнер для лучшего отображения на больших экранах -->
+    <style>
+        /* Основные контейнеры и отступы */
+        .container {
+            width: 100%;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        @media (min-width: 640px) {
+            .container {
+                max-width: 95%;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .container {
+                max-width: 90%;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 85%;
+            }
+        }
+        
+        @media (min-width: 1280px) {
+            .container {
+                max-width: 1200px;
+            }
+            
+            .main-content {
+                padding: 2rem;
+            }
+        }
+        
+        @media (min-width: 1536px) {
+            .container {
+                max-width: 1400px;
+            }
+        }
+        
+        /* Мобильные улучшения для маленьких экранов */
+        @media (max-width: 480px) {
+            .stats-box {
+                padding: 0.75rem;
+            }
+            
+            .stats-number {
+                font-size: 1.5rem;
+                margin-bottom: 0.1rem;
+            }
+            
+            .stats-label {
+                font-size: 0.8rem;
+            }
+            
+            /* Горизонтальный скролл для таблиц на маленьких устройствах */
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .admin-table th,
+            .admin-table td {
+                white-space: nowrap;
+                padding: 0.5rem;
+                font-size: 0.85rem;
+            }
+            
+            /* Меньше кнопки на маленьких экранах */
+            .btn-sm {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+            
+            /* Увеличиваем область нажатия для мобильных */
+            .nav-item {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+        
+        /* Исправляем карточки на маленьких устройствах */
+        @media (max-width: 480px) {
+            .admin-card {
+                margin-bottom: 1rem;
+            }
+            
+            .admin-card .card-header {
+                padding: 0.75rem;
+            }
+            
+            .admin-card .card-body {
+                padding: 0.75rem;
+            }
+            
+            /* Улучшение для кнопок на мобильных */
+            .btn-flex-mobile-icon-only span {
+                display: none;
+            }
+            
+            .btn-flex-mobile-icon-only svg {
+                margin-right: 0;
+            }
+        }
+        
+        /* Улучшение нижней навигации для мобильных */
+        .bottom-navigation {
+            padding-bottom: env(safe-area-inset-bottom, 1rem);
+        }
+        
+        /* Добавляем отступ снизу для контента на мобильных, чтобы не скрывался за нижней навигацией */
+        @media (max-width: 767px) {
+            .main-content {
+                padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 1rem));
+            }
+        }
+    </style>
+
+    <!-- Обновляем основной контейнер, убирая ненужные отступы -->
+    <main class="container mx-auto main-content">
+        <!-- Страницы идут здесь -->
+    </main>
+</body>
+</html>

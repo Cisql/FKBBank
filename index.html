@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>LKNBank</title>
+    
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Используем Google Fonts вместо SF Pro -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Telegram WebApp JS -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Наши стили -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+    
+    <style>
+        :root {
+            --tg-theme-bg-color: #000000;
+            --tg-theme-text-color: #FFFFFF;
+            --tg-theme-hint-color: #8A8A8D;
+            --tg-theme-link-color: #F7A14C;
+            --tg-theme-button-color: #F7A14C;
+            --tg-theme-button-text-color: #FFFFFF;
+            
+            --primary-color: #F7A14C;
+            --primary-dark: #E8841C;
+            --primary-light: #FFC476;
+            --secondary-color: #FFD866;
+            --accent-color: #FF6B3D;
+            
+            --system-gray: #8A8A8D;
+            --system-gray2: #636366;
+            --system-gray3: #48484A;
+            --system-gray4: #3A3A3C;
+            --system-gray5: #2C2C2E;
+            --system-gray6: #1C1C1E;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--tg-theme-bg-color, #000000);
+            color: var(--tg-theme-text-color, #FFFFFF);
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+
+        /* Стили для скроллбара в стиле iOS */
+        ::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+            display: none;
+        }
+        
+        /* Стили для страницы игр */
+        .games-container {
+            padding: 0 16px;
+        }
+        
+        .game-card {
+            display: flex;
+            align-items: center;
+            background-color: var(--system-gray6);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+        
+        .game-card:active {
+            transform: scale(0.98);
+            background-color: var(--system-gray5);
+        }
+        
+        .game-icon {
+            width: 48px;
+            height: 48px;
+            background-color: var(--primary-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+        
+        .game-icon svg {
+            width: 24px;
+            height: 24px;
+            color: white;
+        }
+        
+        .game-details h3 {
+            margin: 0 0 4px 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .game-details p {
+            margin: 0;
+            color: var(--system-gray);
+            font-size: 14px;
+        }
+        
+        .soon-message {
+            text-align: center;
+            padding: 24px;
+            background-color: var(--system-gray6);
+            border-radius: 16px;
+            color: var(--system-gray);
+        }
+        
+        .soon-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 16px;
+        }
+        
+        .soon-icon svg {
+            width: 100%;
+            height: 100%;
+            color: var(--system-gray);
+        }
+        
+        /* Стили для игры в кубик */
+        .dice-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .dice {
+            width: 120px;
+            height: 120px;
+            perspective: 1000px;
+            margin-bottom: 30px;
+        }
+        
+        .dice-face {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1s ease-out;
+            transform: translateZ(-30px);
+            color: var(--primary-color);
+        }
+        
+        .dice.rolling .dice-face {
+            animation: rolling 2s ease-out;
+        }
+        
+        @keyframes rolling {
+            0% { transform: rotateX(0) rotateY(0) rotateZ(0); }
+            25% { transform: rotateX(90deg) rotateY(180deg) rotateZ(45deg); }
+            50% { transform: rotateX(360deg) rotateY(90deg) rotateZ(180deg); }
+            75% { transform: rotateX(180deg) rotateY(360deg) rotateZ(270deg); }
+            100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg); }
+        }
+        
+        /* Стили для показа разных граней кубика */
+        .dice-face svg {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Лоадер страницы -->
+    <div id="loader" class="loader-container">
+        <div class="loader">
+            <div class="loader-circle"></div>
+            <div class="loader-logo">LKN</div>
+        </div>
+        <div class="loader-text">Загрузка приложения...</div>
+    </div>
+    
+    <!-- Контейнер для уведомлений -->
+    <div id="notificationContainer" class="notification-container">
+        <!-- Уведомления будут добавляться сюда -->
+    </div>
+    
+    <div id="app" class="min-h-screen">
+        <!-- Главная страница (дизайн в стиле iOS) -->
+        <div id="homePage" class="page active">
+            <div class="safe-area">
+                <!-- Заголовок -->
+                <div class="header-container">
+                    <div class="header">
+                        <h1 class="text-2xl font-semibold">Баланс</h1>
+                        <button id="menuButton" class="text-orange-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Виджет баланса -->
+                <div class="balance-widget">
+                    <div class="balance-container">
+                        <div class="balance-label">Ваш баланс</div>
+                        <div class="balance-amount">
+                            <span id="balance">0</span>
+                            <span class="currency">Ⱡ</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Кнопки действий -->
+                <div class="action-buttons">
+                    <button id="sendButton" class="action-button">
+                        <div class="action-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                            </svg>
+                        </div>
+                        <span>Перевести</span>
+                    </button>
+                    
+                    <button id="promoButton" class="action-button">
+                        <div class="action-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185zM9.75 9h.008v.008H9.75V9zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm4.125 4.5h.008v.008h-.008V13.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                            </svg>
+                        </div>
+                        <span>Промокод</span>
+                    </button>
+                </div>
+                
+                <!-- Секция транзакций -->
+                <div class="transactions-section">
+                    <div class="section-header">
+                        <h2>История</h2>
+                        <button class="text-orange-400 text-sm see-all-btn">Все операции</button>
+                    </div>
+                    
+                    <div id="transactionsList" class="transactions-list">
+                        <!-- Будет заполнено скриптом -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Страница перевода -->
+        <div id="sendPage" class="page">
+            <div class="safe-area">
+                <div class="modal-header">
+                    <button id="cancelTransferButton" class="back-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                        </svg>
+                        Назад
+                    </button>
+                    <h1>Отправить</h1>
+                    <div class="w-16"></div>
+                </div>
+                
+                <div class="card-container">
+                    <form id="transferForm" class="card-form">
+                        <div class="form-group">
+                            <div class="form-group-header">
+                                <label>Получатель</label>
+                                <div class="segmented-control">
+                                    <button type="button" id="transferByIdBtn" class="segment active">ID</button>
+                                    <button type="button" id="transferByUsernameBtn" class="segment">Ник</button>
+                                </div>
+                            </div>
+                            
+                            <div id="receiverIdField" class="input-container">
+                                <div class="icon">@</div>
+                                <input type="number" id="receiverId" placeholder="ID получателя" required>
+                            </div>
+                            
+                            <div id="receiverUsernameField" class="input-container hidden">
+                                <div class="icon">@</div>
+                                <input type="text" id="receiverUsername" placeholder="Ник получателя" required disabled>
+                            </div>
+                        </div>
+                        
+                        <div id="recipientInfo" class="recipient-info hidden">
+                            <div class="avatar">
+                                <span id="recipientInitial"></span>
+                            </div>
+                            <div class="details">
+                                <div id="recipientName">Пользователь</div>
+                                <div id="recipientId" class="text-system-gray">ID: <span></span></div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Сумма</label>
+                            <div class="input-container">
+                                <div class="icon">Ⱡ</div>
+                                <input type="number" id="amount" placeholder="Сумма перевода" required min="1">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Комментарий <span class="optional">(необязательно)</span></label>
+                            <div class="input-container">
+                                <input type="text" id="description" placeholder="Комментарий к переводу">
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="submit-button">Отправить</button>
+                    </form>
+                </div>
+                
+                <div class="recent-section">
+                    <h3>Недавние получатели</h3>
+                    <div id="recentRecipientsContainer" class="recipients-grid">
+                        <!-- Будет заполнено скриптом -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Страница активации промокода -->
+        <div id="promoPage" class="page">
+            <div class="safe-area">
+                <div class="modal-header">
+                    <button id="cancelPromoButton" class="back-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                        </svg>
+                        Назад
+                    </button>
+                    <h1>Промокод</h1>
+                    <div class="w-16"></div>
+                </div>
+                
+                <div class="card-container">
+                    <div class="promo-info-card">
+                        <div class="info-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
+                            </svg>
+                        </div>
+                        <h3>Получите бонус</h3>
+                        <p>Введите промокод, чтобы получить дополнительные средства на ваш баланс</p>
+                    </div>
+                    
+                    <form id="promoForm" class="promo-form">
+                        <div class="form-group">
+                            <label>Ваш промокод</label>
+                            <div class="input-container promo-input">
+                                <input type="text" id="promoCode" placeholder="Введите промокод" required class="uppercase text-center">
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="submit-button">Активировать</button>
+                    </form>
+                </div>
+                
+                <div class="promo-history">
+                    <h3>История активаций</h3>
+                    <div id="promoHistoryContainer" class="history-list">
+                        <!-- Будет заполнено скриптом -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Страница топ пользователей -->
+        <div id="topPage" class="page">
+            <div class="safe-area">
+                <div class="header-container">
+                    <div class="header">
+                        <h1 class="text-2xl font-semibold">Рейтинг</h1>
+                    </div>
+                </div>
+                
+                <div class="leaderboard-header">
+                    <div class="leaderboard-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
+                        </svg>
+                    </div>
+                    <h2>Пользователи с наибольшим балансом</h2>
+                </div>
+                
+                <div id="topUsersList" class="leaderboard-list">
+                    <!-- Будет заполнено скриптом -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Страница игр -->
+        <div id="gamesPage" class="page">
+            <div class="safe-area">
+                <div class="header-container">
+                    <div class="header">
+                        <h1 class="text-2xl font-semibold">Игры</h1>
+                    </div>
+                </div>
+                
+                <div class="games-container mt-4">
+                    <div class="game-card" data-game="guess-number">
+                        <div class="game-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 01-.657.643 48.39 48.39 0 01-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 01-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 00-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 01-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 00.657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 01-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 005.427-.63 48.05 48.05 0 00.582-4.717.532.532 0 00-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.96.401v0a.656.656 0 00.658-.663 48.422 48.422 0 00-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 01-.61-.58v0z" />
+                            </svg>
+                        </div>
+                        <div class="game-details">
+                            <h3>Угадай число</h3>
+                            <p>Угадайте число от 1 до 10 и получите 500 луков!</p>
+                        </div>
+                    </div>
+                    
+                    <div class="game-card" data-game="dice">
+                        <div class="game-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 16.811c0 .864-.933 1.405-1.683.977l-7.108-4.062a1.125 1.125 0 010-1.953l7.108-4.062A1.125 1.125 0 0121 8.688v8.123zM11.25 16.811c0 .864-.933 1.405-1.683.977l-7.108-4.062a1.125 1.125 0 010-1.953L9.567 7.71a1.125 1.125 0 011.683.977v8.123z" />
+                            </svg>
+                        </div>
+                        <div class="game-details">
+                            <h3>Кубик</h3>
+                            <p>Бросьте кубик и получите от 250 до 2500 луков! 1 попытка в день.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="soon-message mt-6">
+                        <div class="soon-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <p>Скоро появятся новые игры!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Страница игры "Угадай число" -->
+        <div id="guessGamePage" class="page">
+            <div class="safe-area">
+                <div class="modal-header">
+                    <button id="cancelGuessGameButton" class="back-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                        </svg>
+                        Назад
+                    </button>
+                    <h1>Угадай число</h1>
+                    <div class="w-16"></div>
+                </div>
+                
+                <div class="card-container">
+                    <div class="game-info-card">
+                        <div class="info-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 01-.657.643 48.39 48.39 0 01-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 01-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 00-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 01-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 00.657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 01-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 005.427-.63 48.05 48.05 0 00.582-4.717.532.532 0 00-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.96.401v0a.656.656 0 00.658-.663 48.422 48.422 0 00-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 01-.61-.58v0z" />
+                            </svg>
+                        </div>
+                        <h3>Угадай число от 1 до 10</h3>
+                        <p>У вас <span id="attemptsLeft">3</span> попыток в день. Угадайте число и получите 500 луков! За неверный ответ -100 луков.</p>
+                    </div>
+                    
+                    <div id="guessGameContent" class="guess-game-content">
+                        <div id="gameActiveBlock" class="game-block">
+                            <div class="guess-number-selection">
+                                <p class="text-center mb-4">Выберите число от 1 до 10:</p>
+                                <div class="number-grid">
+                                    <button class="number-button" data-number="1">1</button>
+                                    <button class="number-button" data-number="2">2</button>
+                                    <button class="number-button" data-number="3">3</button>
+                                    <button class="number-button" data-number="4">4</button>
+                                    <button class="number-button" data-number="5">5</button>
+                                    <button class="number-button" data-number="6">6</button>
+                                    <button class="number-button" data-number="7">7</button>
+                                    <button class="number-button" data-number="8">8</button>
+                                    <button class="number-button" data-number="9">9</button>
+                                    <button class="number-button" data-number="10">10</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="gameResultBlock" class="game-block hidden">
+                            <div class="result-container">
+                                <div id="resultIconSuccess" class="result-icon success hidden">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div id="resultIconFail" class="result-icon fail hidden">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h3 id="resultTitle">Результат</h3>
+                                <p id="resultDescription">Описание результата</p>
+                                <div class="mt-4">
+                                    <div id="numberReveal" class="number-reveal">
+                                        <span>Загаданное число:</span>
+                                        <div id="revealedNumber" class="revealed-number">?</div>
+                                    </div>
+                                </div>
+                                <div class="mt-6">
+                                    <button id="playAgainBtn" class="primary-button" disabled>Сыграть ещё раз</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="gameNoAttemptsBlock" class="game-block hidden">
+                            <div class="no-attempts-container">
+                                <div class="result-icon warning">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                                    </svg>
+                                </div>
+                                <h3>Попытки закончились</h3>
+                                <p>У вас не осталось попыток на сегодня. Приходите завтра!</p>
+                                <div class="mt-6">
+                                    <button id="closeNoAttemptsBtn" class="secondary-button">Закрыть</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Страница игры "Кубик" -->
+        <div id="dicePage" class="page">
+            <div class="safe-area">
+                <div class="modal-header">
+                    <button id="cancelDiceButton" class="back-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                        </svg>
+                        Назад
+                    </button>
+                    <h1>Кубик</h1>
+                    <div class="w-16"></div>
+                </div>
+                
+                <div class="card-container">
+                    <div class="game-info-card">
+                        <div class="info-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 16.811c0 .864-.933 1.405-1.683.977l-7.108-4.062a1.125 1.125 0 010-1.953l7.108-4.062A1.125 1.125 0 0121 8.688v8.123zM11.25 16.811c0 .864-.933 1.405-1.683.977l-7.108-4.062a1.125 1.125 0 010-1.953L9.567 7.71a1.125 1.125 0 011.683.977v8.123z" />
+                            </svg>
+                        </div>
+                        <h3>Бросьте кубик</h3>
+                        <p>У вас <span id="diceAttemptsLeft">1</span> попытка в день. Бросьте кубик и получите от 250 до 2500 луков!</p>
+                    </div>
+                    
+                    <div id="diceGameContent" class="dice-game-content">
+                        <div id="diceActiveBlock" class="game-block">
+                            <div class="dice-container">
+                                <div id="dice" class="dice">
+                                    <div class="dice-face">
+                                        <svg id="diceFace" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm3 10.5a.75.75 0 000-1.5H9a.75.75 0 000 1.5h6z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <p class="text-center mt-6 mb-4">Нажмите кнопку, чтобы бросить кубик</p>
+                                <button id="rollDiceBtn" class="primary-button">Бросить кубик</button>
+                            </div>
+                        </div>
+                        
+                        <div id="diceResultBlock" class="game-block hidden">
+                            <div class="result-container">
+                                <div class="result-icon success">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h3>Поздравляем!</h3>
+                                <p>Вы выбросили <span id="diceResultValue">6</span> и получили <span id="diceReward">1000</span> луков!</p>
+                                <div class="mt-6">
+                                    <button id="diceCloseBtn" class="primary-button">Закрыть</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="diceNoAttemptsBlock" class="game-block hidden">
+                            <div class="no-attempts-container">
+                                <div class="result-icon warning">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                                    </svg>
+                                </div>
+                                <h3>Попытки закончились</h3>
+                                <p>У вас не осталось попыток на сегодня. Приходите завтра!</p>
+                                <div class="mt-6">
+                                    <button id="diceCloseNoAttemptsBtn" class="secondary-button">Закрыть</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Навигация в стиле iOS -->
+        <nav class="tab-bar">
+            <button id="homeNavButton" class="tab-button active">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                </svg>
+                <span>Главная</span>
+            </button>
+            
+            <button id="gamesNavButton" class="tab-button">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 01-.657.643 48.39 48.39 0 01-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 01-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 00-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 01-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 00.657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 01-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 005.427-.63 48.05 48.05 0 00.582-4.717.532.532 0 00-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.96.401v0a.656.656 0 00.658-.663 48.422 48.422 0 00-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 01-.61-.58v0z" />
+                </svg>
+                <span>Игры</span>
+            </button>
+            
+            <button id="topNavButton" class="tab-button">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                </svg>
+                <span>Рейтинг</span>
+            </button>
+        </nav>
+    </div>
+    
+    <!-- Наш скрипт -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html> 
